@@ -1,13 +1,23 @@
+# TODO: Switch to lib2to3, check if it can import code only valid in python3.
 import ast
 from collections import deque
 
 class DocWalker:
-    def __init__(self, filename):
+    def __init__(self, filename, strategy='depth_first'):
+        strategies = {'depth_first_recursive': self._walk_depth_first_recursive,
+                      'breadth_first': self._walk_breadth_first,
+                      'depth_first': self._walk_depth_first}
+
+        if strategy not in strategies:
+            raise ValueError('Invalid strategy %s, valid strategies: %s' % (strategy, ", ".join(strategies)))
+
+        self._strategy = strategies[strategy]
+
         with open(filename) as f:
             self._root = ast.parse(f.read(), filename=filename)
 
     def run(self):
-        return list(self._walk_depth_first(self._root))
+        return list(self._strategy(self._root))
 
     def _walk_depth_first_recursive(self, node, path=()):
         for child in ast.iter_child_nodes(node):

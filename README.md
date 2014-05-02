@@ -1,1 +1,1 @@
-# Walker for documentation strings and comments
+# Walker for documentation strings (and comments?)
