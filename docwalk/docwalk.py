@@ -23,9 +23,11 @@ class DocWalker:
         for child in ast.iter_child_nodes(node):
             if isinstance(child, ast.ClassDef) or isinstance(child, ast.FunctionDef):
                 new_path = path + (child.name,)
-                yield ".".join(new_path)
                 for path_name in self._walk_depth_first_recursive(child, new_path):
                     yield path_name
+            elif isinstance(child, ast.Expr):
+                if isinstance(child.value, ast.Str):
+                    yield (".".join(path), child.value.s.strip())
 
     def _walk_breadth_first(self, root):
         queue = deque()
@@ -35,8 +37,10 @@ class DocWalker:
             for child in ast.iter_child_nodes(node):
                 if isinstance(child, ast.ClassDef) or isinstance(child, ast.FunctionDef):
                     new_path = path + (child.name, )
-                    yield ".".join(new_path)
                     queue.append((child, new_path))
+                elif isinstance(child, ast.Expr):
+                    if isinstance(child.value, ast.Str):
+                        yield (".".join(path), child.value.s.strip())
 
     def _walk_depth_first(self, root):
         queue = deque()
@@ -46,5 +50,7 @@ class DocWalker:
             for child in ast.iter_child_nodes(node):
                 if isinstance(child, ast.ClassDef) or isinstance(child, ast.FunctionDef):
                     new_path = path + (child.name, )
-                    yield ".".join(new_path)
                     queue.append((child, new_path))
+                elif isinstance(child, ast.Expr):
+                    if isinstance(child.value, ast.Str):
+                        yield (".".join(path), child.value.s.strip())
